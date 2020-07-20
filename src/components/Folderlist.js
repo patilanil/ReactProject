@@ -1,9 +1,12 @@
 import React from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { Modal } from 'react-bootstrap'
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import AddOutlinedIcon from '@material-ui/icons/AddOutlined';
+
+import DeleteIcon from '@material-ui/icons/Delete';
 
 export class FolderList extends React.Component {
-
 
     constructor(props) {
 
@@ -12,7 +15,8 @@ export class FolderList extends React.Component {
         this.state = {
             selectedfolder: "",
             childfolder: "",
-            show: false
+            show: false,
+            index: -1
         }
 
         this.handleShow = () => {
@@ -38,54 +42,101 @@ export class FolderList extends React.Component {
     }
 
     onFolderSElection = (selectedfolder) => {
+        const index = this.props.folders.map(eachItem => eachItem.name).indexOf(selectedfolder.name);
+
         this.setState({
-            selectedfolder: selectedfolder.name
+            selectedfolder: selectedfolder.name,
+            index: index
         })
-        this.handleShow();
     }
 
     addChildFolder = () => {
 
-        const index = this.props.folders.map(eachItem => eachItem.name).indexOf(this.state.selectedfolder);
-        this.props.folders[index].child_folders = [...this.props.folders[index].child_folders , { name: this.state.childfolder}];
-        console.log(this.props.folders);
-        // this.props.setFolders(this.props.folders);
-        // this.props.action();
+        this.props.folders[this.state.index].child_folders = [...this.props.folders[this.state.index].child_folders, { name: this.state.childfolder }];
         this.handleClose();
     }
 
+
+
     render() {
+        let { selectedfolder } = this.state;
+        const renderChildFolder = () => {
+            if (selectedfolder) {
+                return <div style={{ display: "flex", "flex-direction": "row" }}>
+                    <div style={{ display: "flex", "flex-direction": "row" }}>
+                        <div style={{ "margin-right": "10px" }}
+                            key={this.props.folders[this.state.index].name}>
+                            { 'Inside' + ' ' + this.props.folders[this.state.index].name }
+                            <Button variant="primary">
+                                <FolderOpenIcon> </FolderOpenIcon>
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div style={{
+                        border: "2px dotted",
+                        padding: "10px",
+                        width: "80px",
+                        display: "flex",
+                        "justify-content": "center",
+                        "border-radius": "12px",
+                        cursor: "pointer",
+                        "margin-left": "10px"
+                    }} onClick={() => this.handleShow()}>
+                        <AddOutlinedIcon> </AddOutlinedIcon>
+                    </div>
+                </div>
+            }
+        }
+
         return (
 
             <div>
-                <ul>
-                    {this.props.folders.map((each_folder) => {
-                        return <li className="p-10" onClick={ () => this.onFolderSElection(each_folder) } key={each_folder.name}>{each_folder.name}
-                            <ul>
-                                {each_folder.child_folders.map((childfolder) => {
-                                    return <li className="p-10" key={childfolder.name}>{childfolder.name} </li>
-                                })}
-                            </ul>
-                        </li>
-                    })}
-                </ul>
+                <div style={{ display: "flex", "flex-direction": "row", "margin-bottom": "20px" }}>
+
+                    <div style={{ display: "flex", "flex-direction": "row" }}>
+                        {this.props.folders.map((each_folder) => {
+                            return <div style={{ "margin-right": "10px" }}
+                                onClick={() => this.onFolderSElection(each_folder)} key={each_folder.name}>
+                                {each_folder.name}
+                                <Button variant="primary">
+                                    <FolderOpenIcon> </FolderOpenIcon>
+                                </Button>
+                            </div>
+                        })}
+                    </div>
+
+
+                    <div style={{
+                        border: "2px dotted",
+                        padding: "10px",
+                        width: "80px",
+                        display: "flex",
+                        "justify-content": "center",
+                        "border-radius": "12px",
+                        cursor: "pointer",
+                        "margin-left": "10px"
+                    }} onClick={() => this.props.handleShow()}>
+                        <AddOutlinedIcon> </AddOutlinedIcon>
+                    </div>
+                </div>
+
+                {renderChildFolder()}
+
+
                 <Modal show={this.state.show} onHide={this.handleClose}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>New Folder</Modal.Title>
-                    </Modal.Header>
+                    {/* <Modal.Header closeButton>
+                        <Modal.Title>{this.state.selectedfolder}</Modal.Title>
+                    </Modal.Header> */}
                     <Modal.Body>
                         <Form>
                             <Form.Group controlId="formBasicEmail">
-                                <Form.Label>Folder Name</Form.Label>
+                                <Form.Label>{ 'Inside' + ' ' + this.state.selectedfolder}</Form.Label>
                                 <Form.Control type="text" onChange={this.handleChange} placeholder="Enter folder name" />
                             </Form.Group>
-                            <Button variant="secondary" onClick={this.handleClose}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" onClick= { () => this.addChildFolder('anil')} className="float-right">
+                            <Button variant="primary" onClick={() => this.addChildFolder('anil')} className="float-right">
                                 Create
                             </Button>
-                            {/* <Button variant="primary" type="submit"> Submit </Button> */}
                         </Form>
                     </Modal.Body>
                 </Modal>
